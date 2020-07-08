@@ -1,0 +1,10 @@
+{% extends 'main_flashcard/template.html'  %}
+{% block content %}
+    <h1>Account</h1>
+    {% if altUser.is_authenticated %}
+    <p>Authenticated: {{ altUser.is_authenticated }}</p>
+    <p>User: {{ user }}</p>
+    <p>Username: {{ user.username }}</p>
+    <p>Email: {{ user.email }}</p>
+    {% endif %}
+{% endblock %}

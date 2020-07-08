@@ -1,0 +1,21 @@
+{% extends 'main_flashcard/template.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+    {% if form.errors %}
+        <p>Something goes wrong</p>
+    {% else %}
+        <p>Fill in the form</p>
+    {% endif %}
+    <form action="{% url 'login' %}" method="post">
+    <div>
+        {{ form|crispy }}
+    </div>
+        {% csrf_token %}<br />
+        <input type="hidden" name="next" value="{{ next }}">
+        <p><input type="submit" value="Zaloguj się"/></p>
+    </form>
+{% endblock %}

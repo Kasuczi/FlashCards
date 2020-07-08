@@ -1,0 +1,83 @@
+{% extends 'main_flashcard/template.html' %}
+{% block title %}Fiszki{% endblock %}
+{% block content %}
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card mb-4 shadow-sm">
+            <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Thumbnail"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"/><text x="50%" y="50%" fill="#eceeef" dy=".3em">{{ flashcard_object.title }}</text></svg>
+            <div class="card-body">
+              <p class="card-text">
+              Category: {{ flashcard_object.flashcard_category }}<br /><br />
+              Text: {{ flashcard_object.text_content }}
+            {% if flashcard_object.answer %}
+                <details>
+                    <summary>Answer</summary>
+                    <p>{{ flashcard_object.answer }}</p>
+                </details>
+            {% endif %}
+            {% for i in list_of_answers %}
+                {% if i %}
+                    <br /><button onclick="validate_my_answer()">{{ i }}</button>
+                {% endif %}
+            {% endfor %}
+        <p id="hidden_answer" style="visibility: hidden">Right answer is: {{ flashcard_object.right_answer }}</p>
+      </p>
+              <div class="d-flex justify-content-between align-items-center">
+              {% with total_likes=flashcard_object.users_like.count users_like=flashcard_object.users_like.all %}
+                <div class="image-info">
+                  <div>
+                    <span class="count">
+                      <span class="total">{{ total_likes }}</span>
+                      Like{{ total_likes|pluralize }}
+                    </span><br />
+                    {% if user.is_authenticated %}
+                    <button>
+                    <a href="#" data-id="{{ flashcard_object.flashcard_id }}" data-action="{% if request.user in users_like %}un{% endif %}like" class="like button" id="like_button">
+                      {% if request.user not in users_like %}
+                        Like
+                      {% else %}
+                        Unlike
+                      {% endif %}
+                    </a>
+                    </button>
+                      {% else %}
+                      {% endif %}
+                  </div>
+                </div>
+                {% endwith %}
+                <button type="submit" class="btn btn-sm btn-outline-secondary" form="category_form">NEXT</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}
+{% block domready %}
+  $('a.like').click(function(e){
+    e.preventDefault();
+    $.post('{% url "main_flashcard:like" %}',
+      {
+        id: $(this).data('id'),
+        action: $(this).data('action')
+      },
+      function(data){
+        if (data['status'] == 'ok')
+        {
+          var previous_action = $('a.like').data('action');
+
+          // toggle data-action
+          $('a.like').data('action', previous_action == 'like' ?
+          'unlike' : 'like');
+
+          $('a.like').text(previous_action == 'like' ? 'Unlike' :
+          'Like');
+
+          var previous_likes = parseInt($('span.count .total').text());
+          $('span.count .total').text(previous_action == 'like' ?
+          previous_likes + 1 : previous_likes - 1);
+        }
+      }
+    );
+  });
+{% endblock %}
